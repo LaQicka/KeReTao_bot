@@ -21,17 +21,23 @@ def main_menu():
 
 def manual_kb():
     keyboard = InlineKeyboardBuilder()
-    app = InlineKeyboardButton(
-        text="Скачать приложение",
+    app_android = InlineKeyboardButton(
+        text="Скачать приложение для Android",
         url="https://play.google.com/store/apps/details?id=org.amnezia.vpn"
     )
     
+    app_ios = InlineKeyboardButton(
+        text="Скачать приложение для IOS",
+        url="https://apps.apple.com/us/app/amneziavpn/id1600529900"
+    )
+
     back = InlineKeyboardButton(
         text = "Назад",
         callback_data="vpn_back" 
     )
 
-    keyboard.add(app)
+    keyboard.add(app_android)
+    keyboard.add(app_ios) 
     keyboard.add(back)
     return keyboard.adjust(1).as_markup()
 
