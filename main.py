@@ -27,6 +27,7 @@ async def main():
     admin_router.session = session
     vpn_router.session = session
 
+
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_routers(main_router.main_router, admin_router.admin_router, vpn_router.vpn_router)
     await bot.delete_webhook(drop_pending_updates=True)

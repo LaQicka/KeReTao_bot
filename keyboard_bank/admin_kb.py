@@ -86,3 +86,16 @@ def vpn_reg_approve_kb(request):
     keyboard.add(decline_reg)
     keyboard.add(back_button)
     return keyboard.adjust(1).as_markup()
+
+
+def vpn_keys_list_kb(keys):
+    keyboard = InlineKeyboardBuilder()
+    for key in keys:
+        button = InlineKeyboardButton(
+            text=str(key.key_caption),
+            callback_data="vpn_key_"+str(key.id)
+        )
+        keyboard.add(button)
+
+    keyboard.add(back_button)
+    return keyboard.adjust(1).as_markup()

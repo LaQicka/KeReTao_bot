@@ -170,6 +170,72 @@ async def delete_vpn_request(session, request: VPN_KEY_Request):
 
 
 
+class VPN_KEY(Base):
+    __tablename__ = 'vpn_keys'
+    id = Column(BigInteger, primary_key=True)
+    used = Column(Boolean)
+    user_id = Column(BigInteger)
+    key = Column(String)
+    username = Column(String)
+    key_caption = Column(String)
+
+
+async def get_all_vpn_keys(session):
+    async with session() as s:
+        async with s.begin():
+            result = await s.execute(select(VPN_KEY))
+
+    return result.scalars().all()
+
+
+async def get_unused_vpn_keys(session, limit):
+    async with session() as s:
+        async with s.begin():
+            if limit <= 0:
+                result = await s.execute(select(VPN_KEY).where(VPN_KEY.used == False))
+            else: 
+                result = await s.execute(select(VPN_KEY).where(VPN_KEY.used == False).limit(limit))
+    vpn_keys = result.scalars().all()
+    
+    return vpn_keys    
+
+
+async def update_vpn_key(session: AsyncSession, key_id: int, username: str, user_id: int, used: bool):
+    async with session() as s:
+        async with s.begin():
+            result = await s.execute(select(VPN_KEY).where(VPN_KEY.id == key_id))
+            vpn_key = result.scalars().first()
+    
+            if vpn_key:
+                vpn_key.username = username
+                vpn_key.user_id = user_id
+                vpn_key.used = used
+                
+                await s.commit()
+                
+                return vpn_key
+            else:
+                return None
+
+
+async def get_vpn_key_by_id(session, id):
+    async with session() as s:
+        async with s.begin():
+            result = await s.execute(select(VPN_KEY).where(VPN_KEY.id == id))
+            request = result.scalar_one_or_none()
+    return request
+
+
+async def create_vpn_key(session, key, key_caption):
+    key = VPN_KEY(used=False, user_id=0, key=key, username='UNUSED', key_caption=key_caption)
+    async with session() as s:
+        async with s.begin():
+            s.add(key)
+            
+    return key
+
+
+
 
 async def create_async_session():
     # engine = create_async_engine('postgresql+asyncpg://user:password@host:port/database')

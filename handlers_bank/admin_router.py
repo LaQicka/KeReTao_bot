@@ -170,12 +170,49 @@ async def vpn_reg_approve(clbck: CallbackQuery, state: FSMContext):
             text="ОШИБКА. ЗАЯВКА НЕ НАЙДЕНА")
         return 
     
-    await state.set_state(AdminState.vpn_key_waiting)
+    keys = await db.get_unused_vpn_keys(session, 5)
+    # keys2 = await db.get_unused_vpn_keys(session, 0)
+    # for k in keys2:
+    #     print(k.key_caption)
+
+
+    # await state.set_state(AdminState.vpn_key_waiting)
     await state.update_data({'user_id': user_id})
     await clbck.bot.edit_message_text(
         chat_id=clbck.message.chat.id,
         message_id=clbck.message.message_id,
-        text="ОЖИДАНИЕ КЛЮЧА")
+        text="Выберите ключ для передачи",
+        reply_markup=admin_kb.vpn_keys_list_kb(keys))
+
+
+@admin_router.callback_query(F.data.startswith("vpn_key_"))
+async def vpn_key_proceed(clbck: CallbackQuery, state: FSMContext, bot: Bot):
+    id = int(clbck.data.split('_')[2])
+    key = await db.get_vpn_key_by_id(session, id)
+    user_data = await state.get_data()
+    user_id = user_data['user_id']
+    krt_user = await db.get_krt_user_by_user_id(session, user_id)
+
+    await bot.send_message(
+        chat_id=user_id,
+        text="Ваш ключ для подключения:\n\n"
+            + "`" + key.key + "`" + "\n\n"
+            "Инструкции по подключению можно найти в разделе /vpn \n\n",
+        parse_mode="MarkdownV2"
+
+    )    
+    await clbck.answer("Ключ отправлен пользователю")
+
+    await db.update_vpn_key(session, id, krt_user.username, user_id, True)
+
+    vpn_user = await db.get_vpn_user_by_user_id(session, user_id)
+    request = await db.get_vpn_request_by_user_id(session, user_id)
+    if vpn_user == None:
+        await db.create_vpn_user(session, user_id, True, key)
+    else:
+        await db.update_vpn_user(session, user_id, key.key)
+
+    await db.delete_vpn_request(session, request)
 
 
 @admin_router.message(AdminState.vpn_key_waiting)
