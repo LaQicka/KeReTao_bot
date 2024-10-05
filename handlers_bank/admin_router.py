@@ -183,7 +183,21 @@ async def vpn_reg_approve(clbck: CallbackQuery, state: FSMContext):
         message_id=clbck.message.message_id,
         text="Выберите ключ для передачи",
         reply_markup=admin_kb.vpn_keys_list_kb(keys))
+    
 
+@admin_router.callback_query(F.data.startswith("a_vpn_not_"))
+async def vpn_reg_deny(clbck: CallbackQuery):
+    user_id = int(clbck.data.split('_')[3])
+    request = await db.get_vpn_request_by_user_id(session, user_id)
+    if request == None:
+        await clbck.bot.edit_message_text(
+            chat_id=clbck.message.chat.id,
+            message_id=clbck.message.message_id,
+            text="ОШИБКА. ЗАЯВКА НЕ НАЙДЕНА")
+        return 
+    await clbck.answer()
+    await db.delete_vpn_request(session, request)
+    
 
 @admin_router.callback_query(F.data.startswith("vpn_key_"))
 async def vpn_key_proceed(clbck: CallbackQuery, state: FSMContext, bot: Bot):
