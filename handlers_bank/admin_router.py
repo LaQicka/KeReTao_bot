@@ -60,8 +60,11 @@ async def show_req(clbck: CallbackQuery, state: FSMContext):
     if request == None:
         await clbck.answer()
         return 
-
-    text = "USERNAME: " + request.username + '\n' + 'USER ID: ' + str(user_id) + '\n' + "REGISTRATION MESSAGE: " + request.reg_msg + '\n'
+    try:
+        text = "USERNAME: " + request.username + '\n' + 'USER ID: ' + str(user_id) + '\n' + "REGISTRATION MESSAGE: " + request.reg_msg + '\n'
+    except:
+        text = "ОШИБКА ГЕНЕРАЦИИ ТЕКСТА"
+    
     await clbck.bot.edit_message_text(
         text=text,
         chat_id=clbck.message.chat.id,
