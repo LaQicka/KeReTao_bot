@@ -14,16 +14,21 @@ session = None
 
 @vpn_router.message(Command("vpn"))
 async def main_menu(msg: Message):
-    user = await db.get_krt_user_by_user_id(session, msg.from_user.id)
-    if user:
+    try:
+        user = await db.get_krt_user_by_user_id(session, msg.from_user.id)
+        if user:
+            await msg.answer(
+                text="Меню VPN",
+                reply_markup=vpn_kb.main_menu()
+            )
+        else:
+            await msg.answer(
+                text="!!! В доступе отказано !!!"
+            )
+    except:
         await msg.answer(
-            text="Меню VPN",
-            reply_markup=vpn_kb.main_menu()
-        )
-    else:
-        await msg.answer(
-            text="!!! В доступе отказано !!!"
-        )
+                text="!!! ОШИБКА STOP 00000 !!!"
+            )
 
 @vpn_router.callback_query(F.data == "vpn_main_menu")
 async def main_menu_clbck(clbck: CallbackQuery):
@@ -73,8 +78,12 @@ async def manual(clbck: CallbackQuery):
 
 @vpn_router.callback_query(F.data == "vpn_manage")
 async def manage_menu(clbck: CallbackQuery,  state: FSMContext):
-    
-    user = await db.get_vpn_user_by_user_id(session, clbck.from_user.id)
+    try:
+        user = await db.get_vpn_user_by_user_id(session, clbck.from_user.id)
+    except:
+        print("ERROR OCCURED")
+        await clbck.answer()
+        return
 
     if user and user.reg == True:
         await clbck.bot.edit_message_text(
@@ -104,7 +113,12 @@ async def ask_ney_key(clbck: CallbackQuery,  state: FSMContext, bot: Bot):
     )
     await bot.delete_message(clbck.message.chat.id, clbck.message.message_id)
 
-    await db.create_vpn_key_request(session, clbck.from_user.id, str(clbck.from_user.first_name) + " " + str(clbck.from_user.last_name))
+    try:
+        await db.create_vpn_key_request(session, clbck.from_user.id, str(clbck.from_user.first_name) + " " + str(clbck.from_user.last_name))
+    except:
+        print("ERROR OCCURED")
+        await clbck.answer()
+        return
 
     await clbck.answer()
 
@@ -112,15 +126,19 @@ async def ask_ney_key(clbck: CallbackQuery,  state: FSMContext, bot: Bot):
 @vpn_router.callback_query(F.data == "vpn_old_key")
 async def ask_old_key(clbck: CallbackQuery,  state: FSMContext):
     
-    user = await db.get_vpn_user_by_user_id(session, clbck.from_user.id)
-    
-    if user:
-        await clbck.bot.send_message(
-            chat_id=clbck.message.chat.id,
-            text=user.key
-        )   
-    else:
+    try:
+        user = await db.get_vpn_user_by_user_id(session, clbck.from_user.id)
+        
+        if user:
+            await clbck.bot.send_message(
+                chat_id=clbck.message.chat.id,
+                text=user.key
+            )   
+        else:
+            await clbck.answer("USER UNKNOW")
+            return 
+    except:
         await clbck.answer("USER UNKNOW")
-        return 
+        return
 
     await clbck.answer()
