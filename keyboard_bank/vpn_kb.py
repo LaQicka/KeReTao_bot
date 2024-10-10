@@ -10,6 +10,12 @@ def main_menu():
     )
     keyboard.add(instruction)
 
+    json_configs = InlineKeyboardButton(
+        text="Получить файлы для сервисов",
+        callback_data="vpn_configs"
+    )
+    keyboard.add(json_configs)
+
     key_managment = InlineKeyboardButton(
         text="Управление ключами",
         callback_data="vpn_manage"
@@ -39,6 +45,25 @@ def manual_kb():
     keyboard.add(app_android)
     keyboard.add(app_ios) 
     keyboard.add(back)
+    return keyboard.adjust(1).as_markup()
+
+
+def configs_kb(configs):
+    keyboard = InlineKeyboardBuilder()
+    for config in configs:
+        print(config)
+        button = InlineKeyboardButton(
+            text=str(config),
+            callback_data="vpn_conf_"+str(config)
+        )
+        keyboard.add(button)
+
+    back = InlineKeyboardButton(
+        text = "Назад",
+        callback_data="vpn_back" 
+    )
+    keyboard.add(back)
+
     return keyboard.adjust(1).as_markup()
 
 

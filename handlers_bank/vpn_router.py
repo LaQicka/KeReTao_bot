@@ -1,12 +1,13 @@
+import os
+
 from aiogram import Router, F, Bot, types
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import Message, CallbackQuery 
+from aiogram.types import Message, CallbackQuery, InputFile
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 
 from keyboard_bank import vpn_kb
 from db import db
-import util
 
 vpn_router = Router()
 session = None
@@ -29,6 +30,7 @@ async def main_menu(msg: Message):
         await msg.answer(
                 text="!!! ОШИБКА STOP 00000 !!!"
             )
+
 
 @vpn_router.callback_query(F.data == "vpn_main_menu")
 async def main_menu_clbck(clbck: CallbackQuery):
@@ -75,6 +77,39 @@ async def manual(clbck: CallbackQuery):
     await clbck.answer()
 
 
+@vpn_router.callback_query(F.data == "vpn_configs")
+async def vpn_configs(clbck: CallbackQuery):
+    media_dir = os.path.join(os.getcwd(), 'media/vpn_jsons')
+    json_files = [os.path.splitext(f)[0] for f in os.listdir(media_dir) if f.endswith('.json')]
+    
+    text = "Вот конфиги для сервисов, которые вы можете использовать для раздельного туннелирования сайтов.\n\n\n"
+    text += "Вскоре будет инструкция по их подключению, пока просто скажу - чтобы добавить их нужно зайти в \n\n"
+    text += "split tunneling  --> \nsite-based split tunneling --> \nВ правом нижнем углу 3 точки --> \nImport --> \nAdd imported sites to existing ones\n\n"
+    text += "Для каждого сайта нужно добавлять отдельные файлы. Например для youtube файл называется youtube.json"
+
+
+    await clbck.bot.edit_message_text(
+        text=text,
+        chat_id=clbck.message.chat.id,
+        message_id=clbck.message.message_id,
+        reply_markup=vpn_kb.configs_kb(json_files)
+    )
+
+    await clbck.answer()
+
+@vpn_router.callback_query(F.data.startswith("vpn_conf_"))
+async def send_config(clbck: CallbackQuery):
+    filename = clbck.data.split('_')[2]
+    filepath = os.path.join(os.getcwd(), 'media/vpn_jsons', filename + '.json')
+    await clbck.answer()
+    if os.path.exists(filepath):
+        file = types.FSInputFile(filepath)
+        await clbck.message.answer_document(file)
+    else:
+        await clbck.message.answer("Файл не найден.")
+
+
+# ===== Обработка меню менеджмента ключей =====
 @vpn_router.callback_query(F.data == "vpn_manage")
 async def manage_menu(clbck: CallbackQuery,  state: FSMContext):
     try:
