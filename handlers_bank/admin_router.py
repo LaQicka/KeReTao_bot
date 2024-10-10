@@ -99,6 +99,16 @@ async def show_req(clbck: CallbackQuery, state: FSMContext):
 async def admin_reg_approve(clbck: CallbackQuery, state: FSMContext):
     user_id = int(clbck.data.split('_')[3])
 
+    try:
+        user = await db.get_krt_user_by_user_id(session, user_id)
+        if user != None:
+            print("User already in system")
+            await clbck.answer()
+            return
+    except:
+        print("DB ERROR READ USER")
+        await clbck.answer()
+        return
 
     try:
         request = await db.get_krt_reg_request_by_user_id(session, user_id)
@@ -122,8 +132,7 @@ async def admin_reg_approve(clbck: CallbackQuery, state: FSMContext):
 
     await clbck.bot.send_message(
         chat_id=user_id,
-        text="Ваша заявка в систему KeReTao одобрена",
-        reply_markup=main_kb.main_keyboard
+        text="Ваша заявка в систему KeReTao одобрена. Перезагрузите бота командой /start",
     )
 
     await clbck.answer(text="Пользователь добавлен в систему")

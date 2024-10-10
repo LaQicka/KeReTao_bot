@@ -66,6 +66,7 @@ async def proceed_registration(message: Message, state: FSMContext, bot: Bot):
         await db.create_krt_reg_request(session, message.from_user.id, str(user_first_name) + " " + str(user_last_name), message.text)
         
         await message.answer("Ваша заявка отправлена на рассмотрение")
+        await state.set_state(UserState.in_system)
     except:
         await message.answer("ОШИБКА. Попробуйте еще раз")
 
