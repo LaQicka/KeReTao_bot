@@ -31,5 +31,5 @@ jobs:
         script: |
           cd ${{secrets.PROJECT_FOLDER}}
           git pull
-          sudo systemctl restart keretao_bot.service
+          echo ''${{ secrets.PASSWORD }} sudo -S systemctl restart keretao_bot.service
             
