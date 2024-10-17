@@ -26,7 +26,7 @@ jobs:
       with:
         host: ${{ secrets.SSH_HOST }}
         user: ${{ secrets.SSH_USER }}
-        private_key: $ {{ secrets.SSH_SIZIF_KEY }}
+        private_key: $ {{ secrets.SIZIF_SSH_KEY }}
         command: |
           cd ${{ secrets.PROJECT_FOLDER }}
           git pull
