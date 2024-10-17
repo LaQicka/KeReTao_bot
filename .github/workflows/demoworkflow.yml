@@ -28,16 +28,8 @@ jobs:
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWORD }}
         port: ${{ secrets.PORT }}
-        script: whoami
-
-    # - name: Pull updates to server
-    #   uses: D3rHase/ssh-command-action@v0.2.2
-    #   with:
-    #     host: ${{secrets.SSH_HOST}}
-    #     user: ${{secrets.SSH_USER}}
-    #     private_key: ${{secrets.SIZIF_SSH_KEY}}
-    #     command: |
-    #       cd ${{secrets.PROJECT_FOLDER}}
-    #       git pull
-    #       sudo systemctl restart keretao_bot.service
+        script: |
+          cd ${{secrets.PROJECT_FOLDER}}
+          git pull
+          sudo systemctl restart keretao_bot.service
             
