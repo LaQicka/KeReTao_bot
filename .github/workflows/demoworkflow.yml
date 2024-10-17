@@ -27,8 +27,8 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         user: ${{ secrets.SSH_USER }}
         private_key: $ {{ secrets.SSH_SIZIF_KEY }}
-          command: |
-            cd ${{ secrets.PROJECT_FOLDER }}
-            git pull
-            sudo systemctl restart keretao_bot.service
+        command: |
+          cd ${{ secrets.PROJECT_FOLDER }}
+          git pull
+          sudo systemctl restart keretao_bot.service
             
