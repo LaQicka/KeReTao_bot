@@ -21,21 +21,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Copy files via SSH
-      uses: appleboy/scp-action@v0.1.2
+    - name: Pull updates to server
+      uses: D3rHase/ssh-command-action@v0.2.2
       with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "."
-        target: "/path/to/your/server/directory"  # Путь на сервере, куда копировать файлы
-
-    - name: Restart Telegram bot service
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          sudo systemctl stop telegram-bot  # Остановка сервиса
-          sudo systemctl start telegram-bot  # Запуск сервиса заново
+        host: ${{ secrets.SSH_HOST }}
+        user: ${{ secrets.SSH_USER }}
+        private_key: $ {{ secrets.SSH_SIZIF_KEY }}
+          command: |
+            cd ${{ secrets.PROJECT_FOLDER }}
+            git pull
+            sudo systemctl restart keretao_bot.service
+            
