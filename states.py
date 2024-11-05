@@ -8,4 +8,4 @@ class UserState(StatesGroup):
 
 class AdminState(StatesGroup):
     normal = State()
-    vpn_key_waiting = State()
+    msg_wait = State()

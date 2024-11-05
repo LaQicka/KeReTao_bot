@@ -28,7 +28,7 @@ async def main_menu(msg: Message):
             )
     except:
         await msg.answer(
-                text="!!! ОШИБКА STOP 00000 !!!"
+                text="!!! ОШИБКА STOP 00000 !!! (Попробуйте еще разок)"
             )
 
 

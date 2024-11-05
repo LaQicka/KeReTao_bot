@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 import configparser
 
+import handlers_bank
 from keyboard_bank import admin_kb, main_kb
 from states import AdminState
 from db import db
@@ -32,6 +33,61 @@ async def admin_menu_clbck(clbck: CallbackQuery, state: FSMContext):
         chat_id=clbck.message.chat.id,
         message_id=clbck.message.message_id,
         reply_markup=admin_kb.admin_menu()
+    )
+
+
+# ===== Отправки пользователям сообщения =====
+@admin_router.callback_query(F.data == "admin_send_msg")
+async def admin_send_msg(clbck: CallbackQuery, state: FSMContext):
+    await state.set_state(AdminState.msg_wait)
+    await clbck.bot.edit_message_text(
+        chat_id=clbck.message.chat.id,
+        message_id=clbck.message.message_id,
+        text="Введите текст объявления")
+
+
+@admin_router.message(AdminState.msg_wait)
+async def proceed_msg(message: Message, state: FSMContext, bot: Bot):
+    await state.update_data(text = message.text)
+    await bot.send_message(
+        chat_id=message.chat.id,
+        text = message.text,
+        reply_markup=admin_kb.admin_msg_kb()    
+    )    
+
+@admin_router.callback_query(F.data == "admin_send_msg_approve")
+async def proceed_msg_approve(clbck: CallbackQuery, state: FSMContext):
+    data = await state.get_data()
+    text = data.get("text")
+
+    try:
+        users = await db.get_all_krt_users(session)
+        for user in users:
+            await clbck.bot.send_message(
+                text=text,
+                chat_id=user.user_id
+            )
+    except:
+        await clbck.answer("Ошибка отправки")
+
+
+    await clbck.answer("Объявление отправлено")
+    await state.clear()
+    await state.set_state(AdminState.normal)
+    await clbck.bot.delete_message(
+        chat_id=clbck.message.chat.id,
+        message_id=clbck.message.message_id
+    )
+
+
+@admin_router.callback_query(F.data == "admin_send_msg_decline")
+async def proceed_msg_approve(clbck: CallbackQuery, state: FSMContext):
+    await clbck.answer("Отправка объявления отменена")
+    await state.clear()
+    await state.set_state(AdminState.normal)
+    await clbck.bot.delete_message(
+        chat_id=clbck.message.chat.id,
+        message_id=clbck.message.message_id
     )
 
 

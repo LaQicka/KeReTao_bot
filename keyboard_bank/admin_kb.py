@@ -19,8 +19,14 @@ def admin_menu():
         callback_data="admin_vpn_requests"
     )
 
+    send_message_button = InlineKeyboardButton(
+        text="Сделать объявление",
+        callback_data="admin_send_msg"
+    )
+
     keyboard.add(reg_requests_button)
     keyboard.add(vpn_requests_button)
+    keyboard.add(send_message_button)
 
     return keyboard.adjust(1).as_markup()
 
@@ -54,6 +60,21 @@ def registration_approve_kb(request):
     keyboard.add(decline_reg)
     keyboard.add(back_button)
 
+    return keyboard.adjust(1).as_markup()
+
+
+def admin_msg_kb():
+    keyboard = InlineKeyboardBuilder()
+    approve_msg = InlineKeyboardButton(
+        text="Отправить объявление",
+        callback_data="admin_send_msg_approve"
+    )
+    decline_msg = InlineKeyboardButton(
+        text="Отменить отправку объявления",
+        callback_data="admin_send_msg_decline"
+    )
+    keyboard.add(approve_msg)
+    keyboard.add(decline_msg)
     return keyboard.adjust(1).as_markup()
 
 
