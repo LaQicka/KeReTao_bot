@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 import configparser
+from handlers_bank.admin_router import session
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -87,10 +88,10 @@ async def delete_krt_request(session, request: KRT_REG_Request):
 
 
 class VPN_User(Base):
-    __tablename__ = 'vpn_users'
+    __tablename__ = 'vpn_users_2'
     user_id = Column(BigInteger, primary_key=True)
     reg = Column(Boolean)
-    key = Column(String)
+    key_id = Column(BigInteger)
 
 
 async def get_all_vpn_users(session):
@@ -186,6 +187,14 @@ async def get_all_vpn_keys(session):
             result = await s.execute(select(VPN_KEY))
 
     return result.scalars().all()
+
+
+async def det_vpn_key_by_id(session, key_id):
+    async with session() as s:
+        async with s.begin():
+            result = await s.execute(select(VPN_KEY).where(VPN_KEY.id == key_id))
+            request = result.scalar_one_or_none()
+    return request
 
 
 async def get_unused_vpn_keys(session, limit):

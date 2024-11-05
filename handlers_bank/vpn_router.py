@@ -162,11 +162,12 @@ async def ask_old_key(clbck: CallbackQuery,  state: FSMContext):
     
     try:
         user = await db.get_vpn_user_by_user_id(session, clbck.from_user.id)
-        
+        key_model = await db.get_vpn_key_by_id(session, user.key_id)
+
         if user:
             await clbck.bot.send_message(
                 chat_id=clbck.message.chat.id,
-                text=user.key
+                text=key_model.key
             )   
         else:
             await clbck.answer("USER UNKNOW")

@@ -10,7 +10,6 @@ from keyboard_bank import admin_kb, main_kb
 from states import AdminState
 from db import db
 import util
-from handlers_bank.main_router import session
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -379,12 +378,14 @@ async def vpn_key_proceed(clbck: CallbackQuery, state: FSMContext, bot: Bot):
         request = await db.get_vpn_request_by_user_id(session, user_id)
     
         if vpn_user == None:
-            await db.create_vpn_user(session, user_id, True, key.key)
+            await db.create_vpn_user(session, user_id, True, id)
         else:
-            await db.update_vpn_user(session, user_id, key.key)
+            await db.update_vpn_user(session, user_id, id)
 
         await db.delete_vpn_request(session, request)
         
     except:
         print("DB ERROR")
         return
+    
+    await state.clear()
