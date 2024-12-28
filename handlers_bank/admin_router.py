@@ -60,22 +60,27 @@ async def proceed_msg(message: Message, state: FSMContext, bot: Bot):
 async def proceed_msg_approve(clbck: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     text = data.get("text")
-
+    amount = 0
     try:
         users = await db.get_all_krt_users(session)
+    except:
+        await clbck.answer("database error")
+        users = None
+    
+    try:
         for user in users:
             try:
                 await clbck.bot.send_message(
                     text=text,
                     chat_id=user.user_id
                 )
+                amount += 1
             except:
                 await clbck.answer(f'Ошибка отправки сообщения пользователю {user}')
     except:
-        await clbck.answer("Ошибка отправки")
+        pass
 
-
-    await clbck.answer("Объявление отправлено")
+    await clbck.answer(f'Успешных отправок {amount}/{len(users)}\n')
     await state.clear()
     await state.set_state(AdminState.normal)
     await clbck.bot.delete_message(
