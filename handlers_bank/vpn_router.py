@@ -42,6 +42,24 @@ async def main_menu_clbck(clbck: CallbackQuery):
     )
 
 
+@vpn_router.callback_query(F.data == "vpn_donat")
+async def donat(clbck: CallbackQuery):
+    media = types.FSInputFile(path = 'media/DONUT.jpg')
+
+    await clbck.bot.delete_message(
+        chat_id=clbck.message.chat.id,
+        message_id=clbck.message.message_id
+    )
+
+    await clbck.bot.send_photo(
+        caption="Для перевода используйте СБП. Мы уже пустили деньги в дело😉\n",
+        chat_id=clbck.message.chat.id,
+        photo=media,
+        reply_markup=vpn_kb.back()
+    )
+
+
+
 @vpn_router.callback_query(F.data == "vpn_back")
 async def vpn_back_clbck(clbck: CallbackQuery):
     await clbck.bot.delete_message(

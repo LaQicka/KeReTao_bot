@@ -35,6 +35,8 @@ async def admin_menu_clbck(clbck: CallbackQuery, state: FSMContext):
     )
 
 
+
+
 # ===== Отправки пользователям сообщения =====
 @admin_router.callback_query(F.data == "admin_send_msg")
 async def admin_send_msg(clbck: CallbackQuery, state: FSMContext):
@@ -62,10 +64,13 @@ async def proceed_msg_approve(clbck: CallbackQuery, state: FSMContext):
     try:
         users = await db.get_all_krt_users(session)
         for user in users:
-            await clbck.bot.send_message(
-                text=text,
-                chat_id=user.user_id
-            )
+            try:
+                await clbck.bot.send_message(
+                    text=text,
+                    chat_id=user.user_id
+                )
+            except:
+                await clbck.answer(f'Ошибка отправки сообщения пользователю {user}')
     except:
         await clbck.answer("Ошибка отправки")
 
@@ -88,6 +93,8 @@ async def proceed_msg_approve(clbck: CallbackQuery, state: FSMContext):
         chat_id=clbck.message.chat.id,
         message_id=clbck.message.message_id
     )
+
+
 
 
 # ===== Обработка регистрационных заявок =====

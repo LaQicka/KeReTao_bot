@@ -22,6 +22,12 @@ def main_menu():
     )
     keyboard.add(key_managment)
 
+    donat = InlineKeyboardButton(
+        text = "🍩Сбор пожертвований🍩",
+        callback_data = "vpn_donat"
+    )
+    keyboard.add(donat)
+
     return keyboard.adjust(1).as_markup()
 
 
